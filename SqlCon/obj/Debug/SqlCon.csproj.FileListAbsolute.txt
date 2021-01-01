@@ -4,3 +4,8 @@ C:\Users\ToRNaDo\source\repos\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.c
 C:\Users\ToRNaDo\source\repos\SqlCon\obj\Debug\SqlCon.dll
 C:\Users\ToRNaDo\source\repos\SqlCon\obj\Debug\SqlCon.pdb
 C:\Users\ToRNaDo\source\repos\SqlCon\bin\Debug\SqlCon.tlb
+D:\Sales_Projects\SqlCon\bin\Debug\SqlCon.dll
+D:\Sales_Projects\SqlCon\bin\Debug\SqlCon.pdb
+D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
+D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.dll
+D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.pdb
