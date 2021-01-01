@@ -5,5 +5,5 @@
 
   # Easy how to use 
   SqlCon.SqlConnection SQLCON= new SqlCon.SqlConnection("Connection String");
-
-SQLCON.... Methods....
+# use SQLCON.
+SQLCON.Method Name
