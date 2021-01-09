@@ -9,4 +9,3 @@ D:\Sales_Projects\SqlCon\bin\Debug\SqlCon.pdb
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.dll
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.pdb
-D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.csprojAssemblyReference.cache

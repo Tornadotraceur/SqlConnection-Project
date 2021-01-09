@@ -217,6 +217,33 @@ namespace SqlCon
             return dt;
         }
 
+
+        public SqlCommand Select_Cmd(string CMdString)
+        {
+            SqlCommand SqlCmd = new SqlCommand(); 
+
+            if (Is_Connected())
+            {
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    SqlCmd.CommandText = CMdString;
+                    Open_Con();
+                    return SqlCmd;
+                }
+                catch
+                {
+                    throw;
+                }
+
+            }
+
+            return SqlCmd;
+
+        }
+
+
+
         public SqlDataReader Select_DataReader(string Select_Query)
         {
             DataTable dt = new DataTable(); dt.Rows.Clear();
@@ -470,7 +497,7 @@ namespace SqlCon
 
         }
 
-        public bool Run_Transaction_Non_Query(ref List<string> SqlCmds)
+        public bool Run_Transaction_Non_Query(ref List<string> SqlCmds , bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -498,6 +525,8 @@ namespace SqlCon
                 {
                     //   MessageBox.Show(ex.Message);
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -513,7 +542,7 @@ namespace SqlCon
         }
 
         // Run_Transaction_Non_Query using CMD  
-        public bool Run_Transaction_Non_Query( List<SqlCommand> SqlCmd)
+        public bool Run_Transaction_Non_Query( List<SqlCommand> SqlCmd , bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -544,7 +573,10 @@ namespace SqlCon
                 {
                     //   MessageBox.Show(ex.Message);
                     Sqltransaction.Rollback();
+                    if (throws)
+                    throw;
                     return false;
+
                 }
                 finally
                 {
@@ -558,7 +590,7 @@ namespace SqlCon
         }
 
         // Run_Transaction_Non_Query using List of CMD  
-        public bool Run_Transaction_Non_Query(ref List<SqlCommand> SqlCmd)
+        public bool Run_Transaction_Non_Query(ref List<SqlCommand> SqlCmd, bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -589,6 +621,8 @@ namespace SqlCon
                 {
                     //   MessageBox.Show(ex.Message);
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -621,6 +655,7 @@ namespace SqlCon
                 throw;
             }
         }
+
 
         // update table with out Direct Query from DevExpress DGV
         public void UpdateTbl_From_Dgv(string Tbl_Name, DataGrid dgv)
