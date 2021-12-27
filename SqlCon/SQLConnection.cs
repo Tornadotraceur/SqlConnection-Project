@@ -10,8 +10,12 @@ namespace SqlCon
     public class SQLConnection
     {
         readonly SqlConnection SqlCon = new SqlConnection();
-      
 
+        /// <summary>
+        /// Constractour Initialisation the instance from the class.
+        /// </summary>
+        /// <param name="Connectionstring">Zain to be processed.</param>
+        /// <returns>SQLConnection</returns>
         // Constractour
         public SQLConnection(string Connectionstring) => Get_SQl_Con(Connectionstring);
 
@@ -22,25 +26,55 @@ namespace SqlCon
 
 
         // return SqlConnection maybe i need it 
-        public System.Data.SqlClient.SqlConnection Get_SQL_Con() { if (Is_Connected()) { return SqlCon; } return null; }
+        public SqlConnection Get_SQL_Con() => (Is_Connected()) ? SqlCon : null;
+
+        // return ConnectionString maybe i need it 
+        public string Get_ConStr() => (Is_Connected()) ? SqlCon.ConnectionString.ToString() : null;
+
 
         // if connection close open it
-        public void Open_Con()
-        { if (SqlCon.State == ConnectionState.Closed) SqlCon.Open(); }
+        public void Open_Con() { if (SqlCon.State == ConnectionState.Closed) SqlCon.Open(); }
 
 
         //if connection open close it
         public void Close_Con()
         { if (SqlCon.State == ConnectionState.Open) SqlCon.Close(); }
 
-
         public void Force_Close()
-        =>  SqlCon.Dispose(); 
-        
+        {
+            string TempCon = Get_ConStr();
+            SqlCon.Dispose();
+            SqlCon.ConnectionString = TempCon;
+        }
 
 
+        public bool Refreash_Con()
+        {
+            try
+            {
+                Open_Con();
+                Close_Con();
+                return true;
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    Open_Con();
+                    Close_Con();
+                    return true;
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+            }
+
+        }
         // boolean for check if connection staple , Thrown new exmircc
-        private bool Is_Connected()
+        private bool Is_Connected(bool Throw = false)
         {
             try
             {
@@ -50,10 +84,11 @@ namespace SqlCon
             }
             catch
             {
-                SqlCon.Dispose();
+                if (Throw)
+                    throw;
                 return false;
-                throw new Exception("Can't connect to Database !!!");
             }
+
 
         }
 
@@ -72,7 +107,7 @@ namespace SqlCon
                     return NO;
                 }
             }
-            return 0;
+            return -1;
         }
 
         // Get Max ID without Auto +1
@@ -102,19 +137,11 @@ namespace SqlCon
             {
                 if (Is_Connected() && Select_Query.Length > 11)
                     using (SqlDataAdapter da = new SqlDataAdapter(Select_Query, SqlCon))
-                    { da.Fill(dt); };
+                        da.Fill(dt);
             }
-            catch 
-            {
-                throw;
-            }
-
+            catch /*(Exception ex)*/ { throw; }
             return dt;
-
         }
-
-      
-
 
         // Is Row Duplicated!!??
         public bool IS_Data_Duplicated(string Select_Query)
@@ -123,19 +150,12 @@ namespace SqlCon
             try
             {
                 if (Is_Connected() && Select_Query.Length > 1)
-                {
                     using (SqlDataAdapter da = new SqlDataAdapter(Select_Query, SqlCon))
-                    {
                         da.Fill(dt);
-                        if (dt.Rows.Count > 0) return true;
-                    };
-                }
             }
-             catch 
-            {
-                throw;
-            }
-            return false;
+            catch { throw; }
+
+            return (dt.Rows.Count > 0);
         }
 
 
@@ -146,19 +166,30 @@ namespace SqlCon
             try
             {
                 if (Is_Connected() && Select_Query.Length > 1)
-                {
                     using (SqlDataAdapter da = new SqlDataAdapter(Select_Query, SqlCon))
-                    {
                         da.Fill(dt);
-                        if (dt.Rows.Count > 0) return true;
-                    };
+            }
+            catch { throw; }
+
+            return (dt.Rows.Count > 0);
+        }
+
+        // Is Row Duplicated!!??
+        public bool IS_Data_Duplicated(SqlCommand CMD_Select_Query)
+        {
+            DataTable dt = new DataTable(); dt.Rows.Clear();
+            try
+            {
+                if (Is_Connected() && CMD_Select_Query != null)
+                {
+                    CMD_Select_Query.Connection = SqlCon;
+                    using (SqlDataAdapter da = new SqlDataAdapter(CMD_Select_Query))
+                        da.Fill(dt);
                 }
             }
-             catch 
-            {
-                throw;
-            }
-            return false;
+            catch { throw; }
+
+            return (dt.Rows.Count > 0);
         }
 
 
@@ -178,7 +209,7 @@ namespace SqlCon
                     };
                 }
             }
-             catch 
+            catch
             {
                 throw;
             }
@@ -207,7 +238,7 @@ namespace SqlCon
                         return dt;
                     }
                 }
-                 catch 
+                catch
                 {
                     throw;
                 }
@@ -218,9 +249,202 @@ namespace SqlCon
         }
 
 
+        public SqlDataAdapter Select_DataAdapter(string Cmd)
+        {
+
+
+            if (Is_Connected())
+            {
+                try
+                {
+                    SqlDataAdapter Da = new SqlDataAdapter(Cmd, SqlCon);
+                    return Da;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+            return null;
+        }
+
+        public SqlDataAdapter Select_DataAdapter(SqlCommand SqlCmd)
+        {
+
+            if (Is_Connected())
+            {
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    SqlDataAdapter Da = new SqlDataAdapter(SqlCmd);
+                    return Da;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+            return null;
+        }
+
+        public bool Fill_Dataset(string Cmd, ref DataSet dataSet, bool throws = false)
+        {
+
+
+            if (Is_Connected())
+                try
+                {
+                    dataSet.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(Cmd, SqlCon);
+                    Da.Fill(dataSet);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    if (throws)
+                        throw;
+                    else
+                        return false;
+                }
+
+            return false;
+
+
+        }
+
+
+
+        public DataSet Fill_Return_Dataset(SqlCommand SqlCmd, DataSet dataSet)
+        {
+
+            if (Is_Connected())
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    dataSet.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(SqlCmd);
+                    Da.Fill(dataSet);
+                    return dataSet;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
+            return null;
+        }
+
+        public DataSet Fill_Return_Dataset(string Cmd, DataSet dataSet)
+        {
+
+
+            if (Is_Connected())
+                try
+                {
+                    dataSet.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(Cmd, SqlCon);
+                    Da.Fill(dataSet);
+                    return dataSet;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
+            return null;
+
+
+        }
+
+
+
+        public bool Fill_Datatable(SqlCommand SqlCmd, ref DataTable DT, bool throws = false)
+        {
+            if (Is_Connected())
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    DT.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(SqlCmd);
+                    Da.Fill(DT);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    if (throws)
+                        throw;
+                    else
+                        return false;
+                }
+            return false;
+        }
+
+
+        // Select Query Using Cmd Not string 
+        public DataTable Fill_Return_DataTable(SqlCommand SqlCmd, DataTable DT)
+        {
+
+            if (Is_Connected())
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    DT.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(SqlCmd);
+                    Da.Fill(DT);
+                    return DT;
+                }
+                catch { throw; }
+
+            return null;
+        }
+
+        public DataTable Fill_Return_DataTable(string Cmd, DataTable DT)
+        {
+            if (Is_Connected())
+                try
+                {
+                    DT.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(Cmd, SqlCon);
+                    Da.Fill(DT);
+                    return DT;
+                }
+                catch { throw; }
+            return null;
+        }
+
+
+
+        public bool Fill_Return_DataTable(SqlCommand SqlCmd, ref DataSet dataSet, bool throws = false)
+        {
+
+            if (Is_Connected())
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    dataSet.Clear();
+                    SqlDataAdapter Da = new SqlDataAdapter(SqlCmd);
+                    Da.Fill(dataSet);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    if (throws)
+                        throw;
+                    else
+                        return false;
+                }
+
+            return false;
+        }
+
+
+
+
         public SqlCommand Select_Cmd(string CMdString)
         {
-            SqlCommand SqlCmd = new SqlCommand(); 
+            SqlCommand SqlCmd = new SqlCommand();
 
             if (Is_Connected())
             {
@@ -273,11 +497,12 @@ namespace SqlCon
             return dr;
 
         }
+
         public SqlDataReader Select_DataReader(SqlCommand SqlCmd)
         {
 
             DataTable dt = new DataTable(); dt.Rows.Clear();
-            SqlDataReader dr = null ;
+            SqlDataReader dr = null;
             if (Is_Connected())
             {
                 try
@@ -303,14 +528,89 @@ namespace SqlCon
 
 
 
+
+        // insert Bulk Without check IDentity
+        public bool Insert_Bulk(string TableName, DataTable dt, bool throws = false)
+        {
+            if (Is_Connected())
+            {
+                Open_Con();
+
+                using (SqlTransaction Sqltransaction = SqlCon.BeginTransaction())
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(SqlCon, SqlBulkCopyOptions.KeepIdentity, Sqltransaction))
+                    {
+                        bulkCopy.DestinationTableName = TableName;
+                        try
+                        {
+                            bulkCopy.WriteToServer(dt);
+                            Sqltransaction.Commit();
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            Sqltransaction.Rollback();
+                            if (throws)
+                                throw;
+                            return false;
+                        }
+                        finally
+                        {
+                            bulkCopy.Close();
+                            Close_Con();
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // insert Bulk With check IDentity
+        public bool Insert_Bulk_WithConst(string TableName, DataTable dt, bool throws = false)
+        {
+            if (Is_Connected())
+            {
+                Open_Con();
+
+                using (SqlTransaction Sqltransaction = SqlCon.BeginTransaction())
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(SqlCon, SqlBulkCopyOptions.CheckConstraints, Sqltransaction))
+                    {
+                        bulkCopy.DestinationTableName = TableName;
+                        try
+                        {
+                            bulkCopy.WriteToServer(dt);
+                            Sqltransaction.Commit();
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            Sqltransaction.Rollback();
+                            if (throws)
+                                throw;
+                            return false;
+                        }
+                        finally
+                        {
+                            bulkCopy.Close();
+                            Close_Con();
+                        }
+                    }
+                }
+            }
+
+
+
+
+            return false;
+        }
+
         // Run_Non_Query using string 
         public bool Run_Non_Query(string Cmd_String)
         {
             try
             {
                 if (Is_Connected())
-                {
-
                     using (SqlCommand SqlCmd = new SqlCommand(Cmd_String, SqlCon))
                     {
                         Open_Con();
@@ -318,16 +618,10 @@ namespace SqlCon
                         Close_Con();
                         return true;
                     }
-                }
             }
-             catch 
-            {
+            catch { throw; }
 
-                throw;
-            }
             return false;
-
-
         }
 
         // Run_Non_Query using CMD
@@ -347,15 +641,13 @@ namespace SqlCon
                     }
                 }
             }
-             catch 
-            {
-                throw;
-            }
+            catch { throw; }
             return false;
         }
 
+
         // Run_Transaction_Non_Query using string Cmd
-        public bool Run_Transaction_Non_Query(string Cmd_String)
+        public bool Run_Transaction_Non_Query(string Cmd_String, bool throws = false)
         {
             if (Is_Connected())
             {
@@ -373,6 +665,8 @@ namespace SqlCon
                 catch
                 {
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -387,7 +681,47 @@ namespace SqlCon
 
         }
 
-        public bool Run_Transaction_Non_Query( SqlCommand SqlCmd)
+        /// <summary>
+        /// Run Transaction Non Query Get ID of the Inserted Row base on OUTPUT Inserted.Column Name before values or use SELECT SCOPE_IDENTITY().
+        /// </summary>
+        /// <param name="Cmd_String">Zain to be processed.</param>
+        /// <returns>int Row ID</returns>
+        // Run_Transaction_Non_Query_Get_ID and return the autoid value using string Cmd
+        public int Run_Transaction_Non_Query_Get_ID(string Cmd_String, bool throws = false)
+        {
+            if (Is_Connected())
+            {
+                int id;
+                Open_Con();
+                SqlTransaction Sqltransaction = SqlCon.BeginTransaction();
+                try
+                {
+                    using (SqlCommand SqlCmd = new SqlCommand(Cmd_String, SqlCon, Sqltransaction))
+                    {
+                        //SqlCmd.ExecuteNonQuery();
+                        id = (int)SqlCmd.ExecuteScalar();
+                        Sqltransaction.Commit();
+                        return id;
+                    };
+                }
+                catch
+                {
+                    Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
+                    return 0;
+                }
+                finally
+                {
+                    Sqltransaction.Dispose();
+                    Close_Con();
+                }
+            }
+            return 0;
+
+        }
+
+        public bool Run_Transaction_Non_Query(SqlCommand SqlCmd, bool throws = false)
         {
             if (Is_Connected())
             {
@@ -407,6 +741,8 @@ namespace SqlCon
                 catch
                 {
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -421,7 +757,52 @@ namespace SqlCon
             return false;
         }
 
-        public bool Run_Transaction_Non_Query(ref SqlCommand SqlCmd)
+        /// <summary>
+        /// Run Transaction Non Query Get ID of the Inserted Row base on OUTPUT Inserted.Column Name before values or use SELECT SCOPE_IDENTITY().
+        /// </summary>
+        /// <param name="SqlCmd">Zain to be processed.</param>
+        /// <returns>int Row ID</returns>
+        // Run_Transaction_Non_Query_Get_ID and return the autoid value using string Cmd
+        public int Run_Transaction_Non_Query_Get_ID(SqlCommand SqlCmd, bool throws = false)
+        {
+            if (Is_Connected())
+            {
+                int id;
+                Open_Con();
+                SqlTransaction Sqltransaction = SqlCon.BeginTransaction();
+                try
+                {
+                    SqlCmd.Connection = SqlCon;
+                    SqlCmd.Transaction = Sqltransaction;
+                    using (SqlCmd)
+                    {
+                        id = (int)SqlCmd.ExecuteScalar();
+                        Sqltransaction.Commit();
+                        return id;
+                    };
+                }
+                catch
+                {
+                    Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
+                    return 0;
+                }
+                finally
+                {
+                    Sqltransaction.Dispose();
+                    SqlCmd.CommandText = null;
+                    SqlCmd.Parameters.Clear();
+                    Close_Con();
+                    GC.Collect();
+                }
+            }
+            return 0;
+        }
+
+
+
+        public bool Run_Transaction_Non_Query(ref SqlCommand SqlCmd, bool throws = false)
         {
             if (Is_Connected())
             {
@@ -441,6 +822,8 @@ namespace SqlCon
                 catch
                 {
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -455,7 +838,7 @@ namespace SqlCon
             return false;
         }
 
-        public bool Run_Transaction_Non_Query( List<string> SqlCmds)
+        public bool Run_Transaction_Non_Query(List<string> SqlCmds, bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -483,6 +866,8 @@ namespace SqlCon
                 {
                     //   MessageBox.Show(ex.Message);
                     Sqltransaction.Rollback();
+                    if (throws)
+                        throw;
                     return false;
                 }
                 finally
@@ -497,7 +882,7 @@ namespace SqlCon
 
         }
 
-        public bool Run_Transaction_Non_Query(ref List<string> SqlCmds , bool throws = false)
+        public bool Run_Transaction_Non_Query(ref List<string> SqlCmds, bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -512,7 +897,7 @@ namespace SqlCon
                     foreach (string Cmdstring in SqlCmds)
                     {
                         using (SqlCommand Cmd = new SqlCommand(Cmdstring, SqlCon, Sqltransaction))
-                        { 
+                        {
                             Cmd.ExecuteNonQuery();
                         }
                     }
@@ -542,7 +927,7 @@ namespace SqlCon
         }
 
         // Run_Transaction_Non_Query using CMD  
-        public bool Run_Transaction_Non_Query( List<SqlCommand> SqlCmd , bool throws = false)
+        public bool Run_Transaction_Non_Query(List<SqlCommand> SqlCmd, bool throws = false)
         {
             // check connected
             if (Is_Connected())
@@ -559,9 +944,7 @@ namespace SqlCon
                         Cmd.Transaction = Sqltransaction;
                         Cmd.Connection = SqlCon;
                         using (Cmd)
-                        {
                             Cmd.ExecuteNonQuery();
-                        };
                     }
                     // Commit if end the Loop     
                     Sqltransaction.Commit();
@@ -574,7 +957,7 @@ namespace SqlCon
                     //   MessageBox.Show(ex.Message);
                     Sqltransaction.Rollback();
                     if (throws)
-                    throw;
+                        throw;
                     return false;
 
                 }
@@ -650,10 +1033,7 @@ namespace SqlCon
                     da.Update(dt);
                 }
             }
-             catch 
-            {
-                throw;
-            }
+            catch { throw; }
         }
 
 
@@ -683,14 +1063,79 @@ namespace SqlCon
         }
 
 
+
+
+
+
+        public void UpdateTbl_From_DataTable(string Tbl_Name, DataTable DGV_DT)
+        {
+            try
+            {
+                if (Is_Connected())
+                    using (SqlDataAdapter da = new SqlDataAdapter("select * from " + Tbl_Name, Get_SQL_Con()))
+                    {
+                        DataTable dt;
+                        dt = DGV_DT;
+                        da.UpdateCommand = new SqlCommandBuilder(da).GetUpdateCommand();
+                        da.Update(dt);
+                    }
+            }
+            catch (SqlException /*e*/ )
+            {
+
+                //   XtraMessageBox.Show(UserLookAndFeel.Default, "Duplicated Data Please change it ");
+                // GridView v =    dgv.DefaultView.GridControl.MainView as GridView;
+                // v.OptionsBehavior.AllowValidationErrors = true;
+
+                //  throw new Exception("Data Error");
+            }
+            //catch (Exception /*ex*/)
+            //{
+            //    XtraMessageBox.Show(UserLookAndFeel.Default, "Error While Updating data");
+            //}
+
+        }
+
+        public void UpdateTbl_From_DataTable(string Tbl_Name, ref DataTable DGV_DT)
+        {
+            try
+            {
+                if (Is_Connected())
+                    using (SqlDataAdapter da = new SqlDataAdapter("select * from " + Tbl_Name, Get_SQL_Con()))
+                    {
+                        da.UpdateCommand = new SqlCommandBuilder(da).GetUpdateCommand();
+                        da.Update(DGV_DT);
+                    }
+            }
+            catch (SqlException /*e*/ )
+            {
+
+                //   XtraMessageBox.Show(UserLookAndFeel.Default, "Duplicated Data Please change it ");
+                // GridView v =    dgv.DefaultView.GridControl.MainView as GridView;
+                // v.OptionsBehavior.AllowValidationErrors = true;
+
+                //  throw new Exception("Data Error");
+            }
+            //catch (Exception /*ex*/)
+            //{
+            //    XtraMessageBox.Show(UserLookAndFeel.Default, "Error While Updating data");
+            //}
+
+        }
+
+
+
+
+
+
+
         // Get Value By Name 
         public int Get_Val_By_Name(string ColID, string TblName, string ColName, string Resource)
         {
             int NO = 0;
             if (Is_Connected())
-
                 using (SqlCommand cmd = new SqlCommand
-                    ("Select " + ColID + " From " + TblName + " Where " + ColName + "= '" + Resource + "'", SqlCon))
+                    ("Select " + ColID + " From " + TblName + " Where " + ColName + "= N'" + Resource + "'", SqlCon))
                 {
                     Open_Con();
                     NO = (int)cmd.ExecuteScalar();
@@ -700,12 +1145,12 @@ namespace SqlCon
         }
 
         // Get Name By Value
-        public string Get_Name_By_Val(string ColName, string TblName, string ColID, string Resource)
+        public string Get_Name_By_Val(string ColName, string TblName, string ColID, int Resource)
         {
             string Name = string.Empty;
             if (Is_Connected())
                 using (SqlCommand cmd = new SqlCommand
-                ("Select " + ColName + " From " + TblName + " Where " + ColID + "= " + Resource + "", SqlCon))
+                ("Select " + ColName + " From " + TblName + " Where " + ColID + "= " + Resource, SqlCon))
                 {
                     Open_Con();
                     Name = (string)cmd.ExecuteScalar();
@@ -713,6 +1158,7 @@ namespace SqlCon
                 }
             return Name;
         }
+
 
 
 

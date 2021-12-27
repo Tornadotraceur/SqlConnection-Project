@@ -9,3 +9,27 @@ D:\Sales_Projects\SqlCon\bin\Debug\SqlCon.pdb
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.dll
 D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.pdb
+D:\Sales_Projects\SqlCon\obj\Debug\SqlCon.csprojAssemblyReference.cache
+D:\Sales_Projects\T-Market_2021\SqlCon\bin\Debug\SqlCon.dll
+D:\Sales_Projects\T-Market_2021\SqlCon\bin\Debug\SqlCon.pdb
+D:\Sales_Projects\T-Market_2021\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
+D:\Sales_Projects\T-Market_2021\SqlCon\obj\Debug\SqlCon.dll
+D:\Sales_Projects\T-Market_2021\SqlCon\obj\Debug\SqlCon.pdb
+D:\Sales_Projects\T-Market_2021\SqlCon\obj\Debug\SqlCon.csprojAssemblyReference.cache
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\bin\Debug\SqlCon.dll
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\bin\Debug\SqlCon.pdb
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\obj\Debug\SqlCon.csproj.AssemblyReference.cache
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\obj\Debug\SqlCon.dll
+D:\Sales_Projects\New folder\Sales Managment System - Copy\Projects\SqlCon\obj\Debug\SqlCon.pdb
+D:\Documents Mangement Proj\Documents Mangement Proj\My_Projects\SqlCon\bin\Debug\SqlCon.dll
+D:\Documents Mangement Proj\Documents Mangement Proj\My_Projects\SqlCon\bin\Debug\SqlCon.pdb
+D:\Documents Mangement Proj\Documents Mangement Proj\My_Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
+D:\Documents Mangement Proj\Documents Mangement Proj\My_Projects\SqlCon\obj\Debug\SqlCon.dll
+D:\Documents Mangement Proj\Documents Mangement Proj\My_Projects\SqlCon\obj\Debug\SqlCon.pdb
+E:\Projects\C#\Dlls\My_Projects\SqlCon\bin\Debug\SqlCon.dll
+E:\Projects\C#\Dlls\My_Projects\SqlCon\bin\Debug\SqlCon.pdb
+E:\Projects\C#\Dlls\My_Projects\SqlCon\obj\Debug\SqlCon.csproj.AssemblyReference.cache
+E:\Projects\C#\Dlls\My_Projects\SqlCon\obj\Debug\SqlCon.csproj.CoreCompileInputs.cache
+E:\Projects\C#\Dlls\My_Projects\SqlCon\obj\Debug\SqlCon.dll
+E:\Projects\C#\Dlls\My_Projects\SqlCon\obj\Debug\SqlCon.pdb
